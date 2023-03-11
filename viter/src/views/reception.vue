@@ -3,11 +3,13 @@
 </script>
 
 <template>
-    <div>
-        后台
-    </div>
+    
 </template>
 
 <style scoped>
-
+.icons{
+    position: absolute;
+    bottom: 10%;
+    right: 0;
+}
 </style>

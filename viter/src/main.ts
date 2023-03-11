@@ -7,9 +7,6 @@ import { createPinia } from 'pinia'
 
 import './style.css'
 import 'element-plus/dist/index.css'
-// 夜晚模式的css
-import 'element-plus/theme-chalk/dark/css-vars.css'
-
 
 const app = createApp(App)
 
