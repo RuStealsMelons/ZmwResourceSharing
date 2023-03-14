@@ -1,17 +1,40 @@
-from fastapi import FastAPI
-import uvicorn
-app = FastAPI()
+import os
 
+from flask import Flask
+from flask_cors import CORS
+import logging
+import config
+from controllers.login import user
+from controllers.Invitation import generate
+from controllers.imgs import imgs
+from models.connect import connectdb
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+# 自定义日志信息
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
+# 建立一个file handler来把日志记录在文件里
+file_handler = logging.FileHandler('logs/test.log', encoding="UTF-8")
+# 设置日志格式
+formatter = logging.Formatter("%(asctime)s - %(funcName)s - %(lineno)d - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+# 将相应的handler添加在logger对象中
+logger.addHandler(file_handler)
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+app = Flask(__name__)
+CORS(app=app)
 
+# 载入配置文件
+app.config.from_object(config)
+# 初始化数据库
+connectdb()
+
+# 载入蓝图
+app.register_blueprint(user)
+app.register_blueprint(generate)
+app.register_blueprint(imgs)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 if __name__ == '__main__':
-    uvicorn.run(app=app,host="127.0.0.1",port=8000)
+    app.run(host="0.0.0.0", port=5000)
+

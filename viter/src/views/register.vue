@@ -3,87 +3,124 @@ import CryptoJS from "crypto-js";
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../store/user'
 import { useRouter } from 'vue-router'
-const { registerFrom, register, registerResponse } = useUserStore()
+import axios from 'axios'
+import { useNavStore } from '../store/nav'
+useNavStore().now = "front"
+const { registerFrom } = useUserStore()
 const router = useRouter()
-const registe = () => {
+const registe = async () => {
     if (registerFrom.password != registerFrom.password_) {
-        ElMessage({
-            message: '你的两次密码不一致！',
-            type: 'warning',
-        })
+        ElMessage({ message: '你的两次密码不一致！', type: 'warning', })
         return;
     }
     if ((registerFrom.username.length < 1 || registerFrom.username.length > 12) || (registerFrom.password.length < 6 || registerFrom.password.length > 12)) {
-        ElMessage({
-            message: '账号或密码长度不符合要求！',
-            type: 'warning',
-        })
+        ElMessage({ message: '账号或密码长度不符合要求！', type: 'warning', })
         return;
     }
-    registerFrom.sign =
-        registerFrom.password = CryptoJS.MD5(registerFrom.password + registerFrom.invitation).toString().slice(0, registerFrom.password.length);
-    registerFrom.password_ = CryptoJS.MD5(registerFrom.password + registerFrom.invitation).toString().split('').reverse().slice(0, registerFrom.password.length).reverse().join('');
 
-    registerFrom.sign = CryptoJS.MD5(registerFrom.password + registerFrom.password_ + registerFrom.username).toString()
-
-    register()
-    if (registerResponse.success == true) {
-        ElMessage({
-            message: registerResponse.mess,
-            type: 'success',
-        })
-        
+    const { data } = await axios.post('/api/register', { 
+        username: registerFrom.username,
+        password: CryptoJS.MD5(registerFrom.password).toString(),
+        invitation: window.btoa(registerFrom.invitation),
+    })
+    if(data.success == false){
+        ElMessage.error(data.mess)
+        return
+    }else{
+        ElMessage({ message: data.mess, type: 'success',})
         router.push("/login")
-
-    } else if(registerResponse.success == false) {
-        ElMessage.error(registerResponse.mess)
+        return
     }
-    
+}
+const openNewWindow = (url: string, name: string, specs: string) => {
+    window.open(url, name, specs);
 }
 
 </script>
 
 <template>
-    <el-card shadow="never" id="login-card">
-        <template #header>
-            <div class="card-header">
-                <el-button class="button" text>&lt;登录</el-button>
-                <span>注册</span>
-            </div>
-        </template>
-        <el-form :model="registerFrom" label-width="100" id="from">
-            <el-form-item label="账号:">
-                <el-input v-model="registerFrom.username" placeholder="长度为1-12位的任意非空字符" />
-                <!-- <div style="width: 100px"></div> -->
-            </el-form-item>
-            <el-form-item label="密码:">
-                <el-input type="password" placeholder="长度为6-12位的任意非空字符" show-password v-model="registerFrom.password" />
-            </el-form-item>
-            <el-form-item label="再次确认:">
-                <el-input type="password" placeholder="请再次输入密码！" show-password v-model="registerFrom.password_" />
-            </el-form-item>
-            <el-form-item label="邀请码:">
-                <el-input type="password" placeholder="填写邀请码" show-password v-model="registerFrom.invitation" />
-            </el-form-item>
-            <el-button type="primary" @click="registe()">注册</el-button>
-        </el-form>
-    </el-card>
+    <div style="padding-top: 50px;">
+        <div class="register-container">
+            <h2>注册</h2>
+            <form>
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="1-12 非空字符" name="username" v-model="registerFrom.username"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="6-12 非空字符" name="password"
+                        v-model="registerFrom.password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">确认密码</label>
+                    <input type="password" id="confirm-password" placeholder="6-12 非空字符" name="confirm-password"
+                        v-model="registerFrom.password_" required>
+                </div>
+                <div class="form-group">
+                    <label for="invite-code">邀请码</label>
+                    <input type="text" id="invite-code" name="invite-code" placeholder="赞助后，私信查看！"
+                        v-model="registerFrom.invitation" required>
+                </div>
+                <!-- <button type="submit">注册</button> -->
+                <el-button type="success" style="height: 40px;" @click="registe()">注册</el-button>
+                <button type="submit" style="margin-top: 10px;"
+                    @click="openNewWindow('https://afdian.net/order/create?plan_id=a9502350bf1b11edb0405254001e7c00&product_type=0', '_blank', 'height=400,width=600')">赞助一下</button>
+            </form>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-#login-card {
-    margin-top: 10%;
-    min-width: 600px;
-    max-width: 800px;
+.register-container {
+
+    min-width: 400px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
 }
 
-.el-form-item__label-wrap {
-    margin-left: 0px !important;
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-#from {
+form {
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
-</style>
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #3e8e41;
+}</style>

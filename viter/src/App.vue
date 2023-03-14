@@ -1,11 +1,21 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue'
 import logo from './assets/logo.png'
-// const 
+import { useRoute } from 'vue-router'
+import { useNavStore } from './store/nav'
+import { watch } from 'vue'
+import {storeToRefs} from "pinia"
+const route = useRoute()
+const NavStore = useNavStore()
+const { navs, now, back, front } = storeToRefs(NavStore)
 
-const linkClick = () => {
-
-} 
+watch(now, (new_value, old_value) => {
+  if(new_value == "front"){
+    navs.value = front.value
+  }else{
+    navs.value = back.value
+  }
+})
 </script>
 
 <template>
@@ -15,18 +25,19 @@ const linkClick = () => {
             <div id="head-core-box">
                 <a id="logo">
                     <img id="logo-img" :src="logo" alt="logo" />
-                    <span id="logo-font">爱发电</span>
+                    <span id="logo-font">Chovy9</span>
                 </a>
-                <a id="nav" @click="linkClick()">首页</a>
-                <a @click="linkClick()">游戏辅助</a>
-                <a @click="linkClick()">软件分享</a>
-                <div id="logo">
+                <!-- <a id="nav" @click="linkClick()">首页</a> -->
+                <a :key="i" v-for="(nav, i) in navs" @click="$router.push(nav.router)">{{ nav.title }}</a>
+                <!-- <a @click="$router.push('/assistance')">游戏辅助</a>
+                <a @click="linkClick()">软件分享</a> -->
+                <div id="logo" v-if="now==='front'">
                     <Search style="opacity: 0.3;width: 1.5em; height: 1.5em; margin-right: 8px" />
                     <input placeholder="搜索..." id="search" />
                 </div>
                 <div style="width: 200px;">
                     <el-button type="primary" @click="$router.push('/login')" plain>登录</el-button>
-                    <el-button type="success" @click="$router.push('/register')"  plain>注册</el-button>
+                    <el-button type="success" @click="$router.push('/register')" v-if="now==='front'" plain>注册</el-button>
                 </div>
             </div>
         </div>

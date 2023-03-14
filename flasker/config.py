@@ -1,0 +1,15 @@
+import os
+
+DEBUG = True
+# SECRET_KEY = os.urandom(24)
+
+# DATABASE
+HOSTNAME = '47.115.207.245'
+PORT = '3309'
+DATABASE = 'ZmwResourceSharing'
+USERNAME = 'root'
+PASSWORD = '123456'
+
+# URL = 'mysql+pymysql://{0}:{1}@{2}:{3}/{4}?charset=utf8'.format(USERNAME, PASSWORD, HOSTNAME, PORT, DATABASE)
+# SQLALCHEMY_DATABASE_URI = URL
+# SQLALCHEMY_TRACK_MODIFICATIONS = False

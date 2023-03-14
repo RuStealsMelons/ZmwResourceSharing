@@ -2,12 +2,10 @@
 
 </script>
 
-<template>
-    
-</template>
+<template></template>
 
 <style scoped>
-.icons{
+.icons {
     position: absolute;
     bottom: 10%;
     right: 0;

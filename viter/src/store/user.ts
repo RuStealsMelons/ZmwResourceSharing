@@ -24,7 +24,7 @@ interface RegisterResponse {
 export const useUserStore = defineStore('user', {
     state: () => {
         return {
-            loginFrom: {} as LoginFrom,
+            loginFrom: {username: "", password: ""} as LoginFrom,
             registerFrom: { username: "", password: "", password_: "", invitation: "", sign: "" } as RegisterFrom,
             registerResponse: {} as RegisterResponse
         }
